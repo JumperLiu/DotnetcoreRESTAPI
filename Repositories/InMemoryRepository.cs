@@ -26,7 +26,7 @@ namespace DotnetCoreRESTAPI.Repositories
             }
         }
 
-        public List<MobilePhone> GetMobilePhones() => _repository;
+        public IEnumerable<MobilePhone> GetMobilePhones() => _repository;
 
         public MobilePhone GetMobilePhone(Guid id) => _repository.Where(i => i.Id == id).SingleOrDefault();
 

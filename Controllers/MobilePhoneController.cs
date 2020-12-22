@@ -4,7 +4,6 @@ using System.Linq;
 using DotnetCoreRESTAPI.Dtos;
 using DotnetCoreRESTAPI.Extsions;
 using DotnetCoreRESTAPI.Models;
-using DotnetCoreRESTAPI.Repositories;
 using DotnetCoreRESTAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 

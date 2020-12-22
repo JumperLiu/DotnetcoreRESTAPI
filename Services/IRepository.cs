@@ -7,7 +7,7 @@ namespace DotnetCoreRESTAPI.Services
     public interface IRepository
     {
         MobilePhone GetMobilePhone(Guid id);
-        List<MobilePhone> GetMobilePhones();
+        IEnumerable<MobilePhone> GetMobilePhones();
         void CreateMobilePhone(MobilePhone mobilePhone);
         void UpdateMobilePhone(MobilePhone mobilePhone);
         void DeleteMobilePhone(Guid id);
