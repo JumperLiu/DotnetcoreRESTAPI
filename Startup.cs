@@ -11,6 +11,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using DotnetCoreRESTAPI.Settings;
+using System;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
+using System.Linq;
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
 
 namespace DotnetcoreRESTAPI
 {
@@ -43,6 +49,13 @@ namespace DotnetcoreRESTAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DotnetcoreRESTAPI", Version = "v1" });
             });
+
+            services.AddHealthChecks().AddMongoDb(
+                setting.ConnectionString,
+                name: "mongodb",
+                timeout: TimeSpan.FromSeconds(2),
+                tags: new[] { "running" }
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +77,29 @@ namespace DotnetcoreRESTAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("health/living", new HealthCheckOptions { Predicate = (_) => false });
+                endpoints.MapHealthChecks("/health/running", new HealthCheckOptions
+                {
+                    Predicate = (check) => check.Tags.Contains("running"),
+                    ResponseWriter = async (context, report) =>
+                    {
+                        var result = JsonSerializer.Serialize(
+                            report.Entries.Select(
+                                entity =>
+                                new
+                                {
+                                    status = entity.Value.Status.ToString(),
+                                    code = context.Response.StatusCode,
+                                    name = entity.Key,
+                                    exception = entity.Value.Exception == null ? "none" : entity.Value.Exception.Message,
+                                    duration = entity.Value.Duration.ToString()
+                                }
+                            )
+                        );
+                        context.Response.ContentType = MediaTypeNames.Application.Json;
+                        await context.Response.WriteAsync(result);
+                    }
+                });
             });
         }
     }
