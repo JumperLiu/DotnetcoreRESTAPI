@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DotnetCoreRESTAPI.Models;
 using DotnetCoreRESTAPI.Services;
 using MongoDB.Bson;
@@ -17,14 +18,14 @@ namespace DotnetCoreRESTAPI.Repositories
         public MongoDBRepository(IMongoClient mongoClient)
         => collection = mongoClient.GetDatabase(DatabaseName).GetCollection<MobilePhone>(CollectionName);
 
-        public void CreateMobilePhone(MobilePhone mobilePhone) => collection.InsertOne(mobilePhone);
+        public async Task CreateMobilePhoneAsync(MobilePhone mobilePhone) => await collection.InsertOneAsync(mobilePhone);
 
-        public void DeleteMobilePhone(Guid id) => collection.DeleteOne(filterBuilder.Eq(i => i.Id, id));
+        public async Task DeleteMobilePhoneAsync(Guid id) => await collection.DeleteOneAsync(filterBuilder.Eq(i => i.Id, id));
+        public async Task<MobilePhone> GetMobilePhoneAsync(Guid id) => await collection.Find(i => i.Id == id).SingleOrDefaultAsync();
 
-        public MobilePhone GetMobilePhone(Guid id) => collection.Find(i => i.Id == id).SingleOrDefault();
+        public async Task<IEnumerable<MobilePhone>> GetMobilePhonesAsync() => await collection.Find(new BsonDocument()).ToListAsync();
 
-        public IEnumerable<MobilePhone> GetMobilePhones() => collection.Find(new BsonDocument()).ToEnumerable();
-
-        public void UpdateMobilePhone(MobilePhone mobilePhone) => collection.ReplaceOne(filterBuilder.Eq(i => i.Id, mobilePhone.Id), mobilePhone);
+        public async Task UpdateMobilePhoneAsync(MobilePhone mobilePhone)
+        => await collection.ReplaceOneAsync(filterBuilder.Eq(i => i.Id, mobilePhone.Id), mobilePhone);
     }
 }

@@ -35,7 +35,10 @@ namespace DotnetcoreRESTAPI
 
             // services.AddSingleton<IRepository, InMemoryRepository>();
 
-            services.AddControllers();
+            services.AddControllers(option =>
+            {
+                option.SuppressAsyncSuffixInActionNames = false;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DotnetcoreRESTAPI", Version = "v1" });

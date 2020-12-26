@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DotnetCoreRESTAPI.Models;
 using DotnetCoreRESTAPI.Services;
 
@@ -26,16 +27,26 @@ namespace DotnetCoreRESTAPI.Repositories
             }
         }
 
-        public IEnumerable<MobilePhone> GetMobilePhones() => _repository;
+        public async Task<IEnumerable<MobilePhone>> GetMobilePhonesAsync() => await Task.FromResult(_repository);
 
-        public MobilePhone GetMobilePhone(Guid id) => _repository.Where(i => i.Id == id).SingleOrDefault();
+        public async Task<MobilePhone> GetMobilePhoneAsync(Guid id) => await Task.FromResult(_repository.Where(i => i.Id == id).SingleOrDefault());
 
-        public void CreateMobilePhone(MobilePhone mobilePhone) => _repository.Add(mobilePhone);
+        public async Task CreateMobilePhoneAsync(MobilePhone mobilePhone)
+        {
+            _repository.Add(mobilePhone);
+            await Task.CompletedTask;
+        }
 
-        public void UpdateMobilePhone(MobilePhone mobilePhone)
-        => _repository[_repository.FindIndex(i => i.Id == mobilePhone.Id)] = mobilePhone;
+        public async Task UpdateMobilePhoneAsync(MobilePhone mobilePhone)
+        {
+            _repository[_repository.FindIndex(i => i.Id == mobilePhone.Id)] = mobilePhone;
+            await Task.CompletedTask;
+        }
 
-        public void DeleteMobilePhone(Guid id)
-        => _repository.RemoveAt(_repository.FindIndex(i => i.Id == id));
+        public async Task DeleteMobilePhoneAsync(Guid id)
+        {
+            _repository.RemoveAt(_repository.FindIndex(i => i.Id == id));
+            await Task.CompletedTask;
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DotnetCoreRESTAPI.Dtos;
 using DotnetCoreRESTAPI.Extsions;
 using DotnetCoreRESTAPI.Models;
@@ -18,13 +19,13 @@ namespace DotnetCoreRESTAPI.Controllers
         public MobilePhoneController(IRepository repository) => _repository = repository;
         // GET /MobilePhone/
         [HttpGet]
-        public IEnumerable<MobilePhoneDto> GetList() => _repository.GetMobilePhones().Select(i => i.AsDto());
+        public async Task<IEnumerable<MobilePhoneDto>> GetListAsync() => (await _repository.GetMobilePhonesAsync()).Select(i => i.AsDto());
         // GET /MobilePhone/{id}
         [HttpGet("{id}")]
-        public MobilePhoneDto GetOne(Guid id) => _repository.GetMobilePhone(id).AsDto();
+        public async Task<MobilePhoneDto> GetOneAsync(Guid id) => (await _repository.GetMobilePhoneAsync(id)).AsDto();
         // POST /MobilePhone/
         [HttpPost]
-        public ActionResult<MobilePhoneDto> CreateOne(MobilePhoneREST mobilePhone)
+        public async Task<ActionResult<MobilePhoneDto>> CreateOneAsync(MobilePhoneREST mobilePhone)
         {
             var mobile = new MobilePhone()
             {
@@ -35,14 +36,14 @@ namespace DotnetCoreRESTAPI.Controllers
                 Discount = mobilePhone.Discount,
                 CreatedDate = DateTimeOffset.Now
             };
-            _repository.CreateMobilePhone(mobile);
-            return CreatedAtAction(nameof(GetOne), new { id = mobile.Id }, mobile.AsDto());
+            await _repository.CreateMobilePhoneAsync(mobile);
+            return CreatedAtAction(nameof(GetOneAsync), new { id = mobile.Id }, mobile.AsDto());
         }
         // PUT /MobilePhone/{id}
         [HttpPut("{id}")]
-        public ActionResult UpdateOne(Guid id, MobilePhoneREST mobilePhone)
+        public async Task<ActionResult> UpdateOneAsync(Guid id, MobilePhoneREST mobilePhone)
         {
-            var existMobilePhone = _repository.GetMobilePhone(id);
+            var existMobilePhone = await _repository.GetMobilePhoneAsync(id);
             if (existMobilePhone == null) return NotFound($"您所要更新的 ID 为 {id} 不存在，更新失败。");
             var update = existMobilePhone with
             {
@@ -52,16 +53,16 @@ namespace DotnetCoreRESTAPI.Controllers
                 Discount = mobilePhone.Discount,
                 ModifiedDate = DateTimeOffset.Now
             };
-            _repository.UpdateMobilePhone(update);
+            await _repository.UpdateMobilePhoneAsync(update);
             return Ok("更新成功。");
         }
         // DELETE /MobilePhone/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteOne(Guid id)
+        public async Task<ActionResult> DeleteOneAsync(Guid id)
         {
-            var existMobilePhone = _repository.GetMobilePhone(id);
+            var existMobilePhone = await _repository.GetMobilePhoneAsync(id);
             if (existMobilePhone == null) return NotFound($"您所要删除的 ID 为 {id} 不存在，无需删除操作。");
-            _repository.DeleteMobilePhone(id);
+            await _repository.DeleteMobilePhoneAsync(id);
             return Ok("删除成功。");
         }
     }
